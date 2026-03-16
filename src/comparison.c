@@ -2,10 +2,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
-#include "matrix.h"
-#include "naive_gemm.h"
-#include "transpose_gemm.h"
-
+#include "GEMM/matrix.h"
+#include "GEMM/gemm.h"
 
 void generate_random_matrix(struct matrix* mat)
 {
@@ -19,22 +17,27 @@ void generate_random_matrix(struct matrix* mat)
 }
 
 
-double measure_time(char (*func)(struct matrix*, struct matrix*, struct matrix*, struct matrix*), struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D)
+double measure_time(enum gemm_type type, struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D)
 {
     struct timespec start, end;
     timespec_get(&start, TIME_UTC);
-    func(A, B, C, D);
+    gemm_default(type, A, B, C, D);
     timespec_get(&end, TIME_UTC);
 
     return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
 }
 
-void comparison(size_t num_cycles, size_t a_rows, size_t a_cols, size_t b_rows, size_t b_cols, size_t c_rows, size_t c_cols)
+void comparison(size_t num_cycles, size_t a_rows, size_t a_cols, size_t b_rows, size_t b_cols)
 {
     struct matrix* A = init_matrix(a_rows, a_cols);
     struct matrix* B = init_matrix(b_rows, b_cols);
     struct matrix* C = init_matrix(a_rows, b_cols);
     struct matrix* D = init_matrix(a_rows, b_cols);
+
+    if (A == NULL || B == NULL || C == NULL || D == NULL) {
+        fprintf(stderr, "Error: Failed to allocate memory for matrices\n");
+        return;
+    }
 
     generate_random_matrix(A);
     generate_random_matrix(B);
@@ -47,9 +50,9 @@ void comparison(size_t num_cycles, size_t a_rows, size_t a_cols, size_t b_rows, 
     for (size_t i = 0; i < num_cycles; i++)
     {
         printf("Cycle %zu\n", i);
-        naive_time[i] = measure_time(naive_gemm_default, A, B, C, D);
+        naive_time[i] = measure_time(GEMM_NAIVE, A, B, C, D);
         printf("\tNaive time: %f seconds\n", naive_time[i]);
-        transpose_time[i] = measure_time(transpose_gemm_default, A, B, C, D);
+        transpose_time[i] = measure_time(GEMM_TRANSPOSE, A, B, C, D);
         printf("\tTranspose time: %f seconds\n", transpose_time[i]);
     }
 
@@ -86,6 +89,6 @@ void comparison(size_t num_cycles, size_t a_rows, size_t a_cols, size_t b_rows, 
 
 int main()
 {
-    comparison(100, 1000, 1000, 1000, 1000, 1000, 1000);
+    comparison(10, 1000, 1000, 1000, 1000);
     return 0;
 }

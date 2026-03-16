@@ -26,7 +26,7 @@ void transpose_matrix(struct matrix* A, struct matrix* B);
  * @param B Pointer to the second matrix
  * @param C Pointer to the result matrix
  */
-char transpose_matrix_matrix_mult(struct matrix* A, struct matrix* B, struct matrix* C);
+int transpose_matrix_matrix_mult(struct matrix* A, struct matrix* B, struct matrix* C);
 
 /**@brief Add two matrices
  *
@@ -34,7 +34,7 @@ char transpose_matrix_matrix_mult(struct matrix* A, struct matrix* B, struct mat
  * @param B Pointer to the second matrix
  * @param C Pointer to the result matrix
  */
-char transpose_matrix_matrix_add(struct matrix* A, struct matrix* B, struct matrix* C);
+int transpose_matrix_matrix_add(struct matrix* A, struct matrix* B, struct matrix* C);
 /**@brief Naive GEMM implementation a*A*B + b*C
  *
  * @param alpha Scalar multiplier for A*B
@@ -43,18 +43,8 @@ char transpose_matrix_matrix_add(struct matrix* A, struct matrix* B, struct matr
  * @param B Pointer to the second matrix
  * @param C Pointer to the accumulator matrix
  * @param D Pointer to the result matrix
- * @param rows Number of rows
- * @param cols Number of columns
  */
-char transpose_gemm(double alpha, double beta, struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D);
+int transpose_gemm(double alpha, double beta, struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D);
 
-/**@brief Default transpose GEMM implementation a*A*B + b*C
- *
- * @param A Pointer to the first matrix
- * @param B Pointer to the second matrix
- * @param C Pointer to the accumulator matrix
- * @param D Pointer to the result matrix
- */
-char transpose_gemm_default(struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D);
 
 #endif // TRANSPOSE_GEMM_H

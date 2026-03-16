@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "naive_gemm.h"
+#include "GEMM/naive/naive_gemm.h"
 
 
 /**@brief Multiply a matrix by a scalar
@@ -27,7 +27,7 @@ void naive_matrix_num_mult(double alpha, struct matrix* A, struct matrix* B)
  * @param B Pointer to the second matrix
  * @param C Pointer to the result matrix
  */
-char naive_matrix_matrix_mult(struct matrix* A, struct matrix* B, struct matrix* C)
+int naive_matrix_matrix_mult(struct matrix* A, struct matrix* B, struct matrix* C)
 {
     if (A->cols != B->rows)
     {
@@ -61,7 +61,7 @@ char naive_matrix_matrix_mult(struct matrix* A, struct matrix* B, struct matrix*
  * @param B Pointer to the second matrix
  * @param C Pointer to the result matrix
  */
-char naive_matrix_matrix_add(struct matrix* A, struct matrix* B, struct matrix* C)
+int naive_matrix_matrix_add(struct matrix* A, struct matrix* B, struct matrix* C)
 {
     if (A->rows != B->rows || A->cols != B->cols)
     {
@@ -96,13 +96,15 @@ char naive_matrix_matrix_add(struct matrix* A, struct matrix* B, struct matrix* 
  * @param rows Number of rows
  * @param cols Number of columns
  */
-char naive_gemm(double alpha, double beta, struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D)
+int naive_gemm(double alpha, double beta, struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D)
 {
-    char status = 0;
+    int status = 0;
     if (D == NULL)
     {
-        D = init_matrix(A->rows, B->cols);
+        fprintf(stderr, "Error: Result matrix is NULL\n");
+        return -1;
     }
+
     status = naive_matrix_matrix_mult(A, B, D);
 
     if (status != 0)
@@ -113,21 +115,24 @@ char naive_gemm(double alpha, double beta, struct matrix* A, struct matrix* B, s
 
     naive_matrix_num_mult(alpha, D, D);
 
-
-    struct matrix* tmp = init_matrix(C->rows, C->cols);
-    naive_matrix_num_mult(beta, C, tmp);
-
-    status = naive_matrix_matrix_add(D, tmp, D);
-    if (status != 0)
+    if (C != NULL)
     {
-        fprintf(stderr, "Error: Matrix addition failed\n");
-        return -1;
+        struct matrix* tmp = init_matrix(C->rows, C->cols);
+        if (tmp == NULL) {
+            fprintf(stderr, "Error: Failed to allocate memory for temporary matrix\n");
+            return -1;
+        }
+        naive_matrix_num_mult(beta, C, tmp);
+
+        status = naive_matrix_matrix_add(D, tmp, D);
+        if (status != 0)
+        {
+            fprintf(stderr, "Error: Matrix addition failed\n");
+            free_matrix(tmp);
+            return -1;
+        }
+        free_matrix(tmp);
     }
 
     return 0;
-}
-
-char naive_gemm_default(struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D)
-{
-    return naive_gemm(1.0, 1.0, A, B, C, D);
 }

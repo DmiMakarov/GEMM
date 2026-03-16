@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "transpose_gemm.h"
+#include "GEMM/transpose/transpose_gemm.h"
 
 
 /**@brief Multiply a matrix by a scalar
@@ -44,7 +44,7 @@ void transpose_matrix(struct matrix* A, struct matrix* B)
  * @param B Pointer to the second matrix
  * @param C Pointer to the result matrix
  */
-char transpose_matrix_matrix_mult(struct matrix* A, struct matrix* B, struct matrix* C)
+int transpose_matrix_matrix_mult(struct matrix* A, struct matrix* B, struct matrix* C)
 {
     if (A->cols != B->rows)
     {
@@ -58,6 +58,10 @@ char transpose_matrix_matrix_mult(struct matrix* A, struct matrix* B, struct mat
     }
 
     struct matrix* tmp_b = init_matrix(B->cols, B->rows);
+    if (tmp_b == NULL) {
+        fprintf(stderr, "Error: Failed to allocate memory for temporary matrix in transpose_matrix_matrix_mult\n");
+        return -1;
+    }
     transpose_matrix(B, tmp_b);
 
     for (size_t i = 0; i < A->rows; i++)
@@ -82,7 +86,7 @@ char transpose_matrix_matrix_mult(struct matrix* A, struct matrix* B, struct mat
  * @param B Pointer to the second matrix
  * @param C Pointer to the result matrix
  */
-char transpose_matrix_matrix_add(struct matrix* A, struct matrix* B, struct matrix* C)
+int transpose_matrix_matrix_add(struct matrix* A, struct matrix* B, struct matrix* C)
 {
     if (A->rows != B->rows || A->cols != B->cols)
     {
@@ -117,12 +121,14 @@ char transpose_matrix_matrix_add(struct matrix* A, struct matrix* B, struct matr
  * @param rows Number of rows
  * @param cols Number of columns
  */
-char transpose_gemm(double alpha, double beta, struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D)
+int transpose_gemm(double alpha, double beta, struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D)
 {
-    char status = 0;
+    int status = 0;
+
     if (D == NULL)
     {
-        D = init_matrix(A->rows, B->cols);
+        fprintf(stderr, "Error: Result matrix is NULL\n");
+        return -1;
     }
     status = transpose_matrix_matrix_mult(A, B, D);
 
@@ -134,21 +140,23 @@ char transpose_gemm(double alpha, double beta, struct matrix* A, struct matrix* 
 
     transpose_matrix_num_mult(alpha, D, D);
 
-
-    struct matrix* tmp = init_matrix(C->rows, C->cols);
-    transpose_matrix_num_mult(beta, C, tmp);
-
-    status = transpose_matrix_matrix_add(D, tmp, D);
-    if (status != 0)
+    if (C != NULL)
     {
-        fprintf(stderr, "Error: Matrix addition failed\n");
-        return -1;
+        struct matrix* tmp = init_matrix(C->rows, C->cols);
+        if (tmp == NULL) {
+            fprintf(stderr, "Error: Failed to allocate memory for temporary matrix\n");
+            return -1;
+        }
+        transpose_matrix_num_mult(beta, C, tmp);
+        status = transpose_matrix_matrix_add(D, tmp, D);
+        if (status != 0)
+        {
+            fprintf(stderr, "Error: Matrix addition failed\n");
+            free_matrix(tmp);
+            return -1;
+        }
+        free_matrix(tmp);
     }
 
     return 0;
-}
-
-char transpose_gemm_default(struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D)
-{
-    return transpose_gemm(1.0, 1.0, A, B, C, D);
 }
