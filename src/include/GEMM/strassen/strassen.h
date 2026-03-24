@@ -1,5 +1,5 @@
-#ifndef NAIVE_GEMM_H
-#define NAIVE_GEMM_H
+#ifndef STRASSEN_GEMM_H
+#define STRASSEN_GEMM_H
 #include "matrix.h"
 
 /**@brief Naive GEMM implementation a*A*B + b*C
@@ -11,7 +11,7 @@
  * @param C Pointer to the accumulator matrix
  * @param D Pointer to the result matrix
  */
-int naive_gemm(double alpha, double beta, struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D);
+int strassen_gemm(double alpha, double beta, struct matrix* A, struct matrix* B, struct matrix* C, struct matrix* D);
 
 
-#endif // NAIVE_GEMM_H
+#endif // STRASSEN_GEMM_H
