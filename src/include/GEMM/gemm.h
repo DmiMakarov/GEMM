@@ -7,6 +7,7 @@
 enum gemm_type {
     GEMM_NAIVE,
     GEMM_TRANSPOSE,
+    GEMM_STRASSEN,
     GEMM_WINOGRAD,
 };
 /**@brief GEMM implementation

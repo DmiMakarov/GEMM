@@ -33,6 +33,10 @@ add_executable(test_transpose_gemm ${TEST_DIR}/test_transpose_gemm.c)
 target_include_directories(test_transpose_gemm PRIVATE ${GEMM_HEADERS} ${GEMM_HEADERS}/transpose)
 target_link_libraries(test_transpose_gemm PRIVATE gemm_transpose)
 
+add_executable(test_strassen ${TEST_DIR}/test_strassen.c)
+target_include_directories(test_strassen PRIVATE ${GEMM_HEADERS} ${GEMM_HEADERS}/strassen)
+target_link_libraries(test_strassen PRIVATE gemm_strassen)
+
 # ---- Comparison program (uses dispatcher gemm + math) ----
 add_executable(comparison src/comparison.c)
 target_include_directories(comparison PRIVATE ${GEMM_INCLUDE})
@@ -43,3 +47,4 @@ enable_testing()
 add_test(NAME test_matrix      COMMAND test_matrix)
 add_test(NAME test_naive       COMMAND test_naive)
 add_test(NAME test_transpose   COMMAND test_transpose_gemm)
+add_test(NAME test_strassen    COMMAND test_strassen)

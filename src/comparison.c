@@ -46,6 +46,7 @@ void comparison(size_t num_cycles, size_t a_rows, size_t a_cols, size_t b_rows, 
 
     double naive_time[num_cycles];
     double transpose_time[num_cycles];
+    double strassen_time[num_cycles];
 
     for (size_t i = 0; i < num_cycles; i++)
     {
@@ -54,31 +55,42 @@ void comparison(size_t num_cycles, size_t a_rows, size_t a_cols, size_t b_rows, 
         printf("\tNaive time: %f seconds\n", naive_time[i]);
         transpose_time[i] = measure_time(GEMM_TRANSPOSE, A, B, C, D);
         printf("\tTranspose time: %f seconds\n", transpose_time[i]);
+        strassen_time[i] = measure_time(GEMM_STRASSEN, A, B, C, D);
+        printf("\tStrassen time: %f seconds\n", strassen_time[i]);
     }
 
     double naive_time_avg = 0.0;
     double transpose_time_avg = 0.0;
+    double strassen_time_avg = 0.0;
+
     for (size_t i = 0; i < num_cycles; i++)
     {
         naive_time_avg += naive_time[i];
         transpose_time_avg += transpose_time[i];
+        strassen_time_avg += strassen_time[i];
     }
 
     naive_time_avg /= num_cycles;
     transpose_time_avg /= num_cycles;
+    strassen_time_avg /= num_cycles;
 
     double naive_time_std = 0.0;
     double transpose_time_std = 0.0;
+    double strassen_time_std = 0.0;
+
     for (size_t i = 0; i < num_cycles; i++)
     {
         naive_time_std += (naive_time[i] - naive_time_avg) * (naive_time[i] - naive_time_avg);
         transpose_time_std += (transpose_time[i] - transpose_time_avg) * (transpose_time[i] - transpose_time_avg);
+        strassen_time_std += (strassen_time[i] - strassen_time_avg) * (strassen_time[i] - strassen_time_avg);
     }
     naive_time_std = sqrt(naive_time_std / num_cycles);
     transpose_time_std = sqrt(transpose_time_std / num_cycles);
+    strassen_time_std = sqrt(strassen_time_std / num_cycles); 
 
     printf("Naive time: %f seconds (average) ± %f seconds (standard deviation)\n", naive_time_avg, naive_time_std);
     printf("Transpose time: %f seconds (average) ± %f seconds (standard deviation)\n", transpose_time_avg, transpose_time_std);
+    printf("Strassen time: %f seconds (average) ± %f seconds (standard deviation)\n", strassen_time_avg, strassen_time_std);
 
     free_matrix(A);
     free_matrix(B);

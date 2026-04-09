@@ -21,7 +21,12 @@ add_library(gemm_transpose STATIC transpose/transpose_gemm.c)
 target_include_directories(gemm_transpose PUBLIC ${GEMM_INCLUDE_DIR} ${GEMM_HEADERS_DIR})
 target_link_libraries(gemm_transpose PUBLIC gemm_matrix)
 
+# ---- Backend: strassen GEMM ----
+add_library(gemm_strassen STATIC strassen/strassen.c)
+target_include_directories(gemm_strassen PUBLIC ${GEMM_INCLUDE_DIR} ${GEMM_HEADERS_DIR})
+target_link_libraries(gemm_strassen PUBLIC gemm_matrix)
+
 # ---- Dispatcher: gemm.c selects backend by enum ----
 add_library(gemm STATIC gemm.c)
 target_include_directories(gemm PUBLIC ${GEMM_INCLUDE_DIR} ${GEMM_HEADERS_DIR})
-target_link_libraries(gemm PRIVATE gemm_naive gemm_transpose gemm_matrix)
+target_link_libraries(gemm PRIVATE gemm_naive gemm_transpose gemm_strassen gemm_matrix)

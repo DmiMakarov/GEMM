@@ -3,6 +3,7 @@
 #include "GEMM/matrix.h"
 #include "GEMM/naive/naive_gemm.h"
 #include "GEMM/transpose/transpose_gemm.h"
+#include "GEMM/strassen/strassen.h"
 
 enum gemm_type gemm_type;
 
@@ -14,8 +15,8 @@ int gemm(enum gemm_type type, double alpha, double beta, struct matrix* A, struc
             return naive_gemm(alpha, beta, A, B, C, D);
         case GEMM_TRANSPOSE:
             return transpose_gemm(alpha, beta, A, B, C, D);
-        //case GEMM_WINOGRAD:
-        //    return winograd_gemm(alpha, beta, A, B, C, D);
+        case GEMM_STRASSEN:
+            return strassen_gemm(alpha, beta, A, B, C, D);
         default:
             fprintf(stderr, "Error: Invalid GEMM type\n");
             return 1;

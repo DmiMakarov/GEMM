@@ -8,4 +8,4 @@ Current progress:
 
 [x] - Transpose matrix before multiplication implementation
 
-[ ] - Strassen algorithm
+[x] - Strassen algorithm
